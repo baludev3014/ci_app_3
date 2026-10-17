@@ -1,0 +1,33 @@
+name: concurrency demo
+
+on:
+    push:
+        branches: 
+            - main
+
+concurrency: 
+    cancel-in-progress: true
+    group: concurrency_group
+
+jobs:
+
+    log:
+        runs-on: ubuntu-latest
+        steps:
+            - name: logging msg
+              run: echo "Loggedd..."
+    
+    dev_script:
+        needs: log
+        strategy:
+            matrix:
+                os: [ubuntu-latest,windows-latest,macos-latest]
+            max-parallel: 1
+        runs-on: ${{ matrix.os }}
+        steps:
+            - name: checkout repo
+              uses: actions/checkout@v5
+
+            - name: running script
+              run: node index.js
+
